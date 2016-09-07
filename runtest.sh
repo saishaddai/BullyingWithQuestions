@@ -3,10 +3,12 @@
 
 #read from the setup file the path to
 #check if the $BULLYNG_PATH is set
+#install.sh
 #questions files
 #answers files
 #bullyme.sh
 #answerme.sh
+#setup.sh
 
 #check if the alias are set rightly
 
