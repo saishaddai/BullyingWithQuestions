@@ -1,4 +1,4 @@
-(work in progress)
+(work in progress, not final version)
 
 BullyingWithQuestions
 ======
@@ -26,14 +26,25 @@ $ ./install.sh
 ```
 * If something fails, then do the setup manually. Open your .bashrc file and type the following
 ```bash
-alias bullyme='./askme.sh' 
+alias bullyme='./bullyme.sh' 
 alias answerme='./answerme.sh $1'
-alias runtest='./askme.sh'
+alias runtest='./runtest.sh'
 $BULLYNG_PATH=/your/path/to/root/directory
+bullyme
 ```
 
 * Run test
 ```bash
 $ runtest
 ```
+This will send a message of all the possible errors. Please refer to me in case troubleshot 
+
+### Add new Questions file
+* Open the setup.sh file
+* Add the path to the questions file (it should be a txt file)
+* Add the path to the answers file (it should be a txt file)
+* Save and close the editor
+* Run the run test command and see whether the new configurations are set rightly
+
+
 
