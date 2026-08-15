@@ -1,8 +1,6 @@
-(work in progress, not final version)
-
 BullyingWithQuestions
 ======
-this is a basic bash script to retrieve a random question from a file to help you study from a text plain file full of questions
+Originally this was a basic bash script i wrote 10 years ago to retrieve a random question from a file to help you study from a text plain file full of questions. Now I decided to move to Go + Bubble Tea. I will keep updated this readme in order to improve step by step this old project I started with only good will but no time. 
 
 ## Gitflow
 
