@@ -12,7 +12,7 @@ You may want to set a couple of commands as alias in order to run each time you 
 
 ### Requirements
 
-* bash
+* Go
 
 ### Steps
 
@@ -20,21 +20,9 @@ You may want to set a couple of commands as alias in order to run each time you 
 * Run the following command:
 
 ```bash
-$ ./install.sh
-```
-* If something fails, then do the setup manually. Open your .bashrc file and type the following
-```bash
-alias bullyme='./bullyme.sh' 
-alias answerme='./answerme.sh $1'
-alias runtest='./runtest.sh'
-$BULLYNG_PATH=/your/path/to/root/directory
-bullyme
+$ go main.go
 ```
 
-* Run test
-```bash
-$ runtest
-```
 This will send a message of all the possible errors. Please refer to me in case troubleshot 
 
 ### Add new Questions file
