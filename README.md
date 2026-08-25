@@ -13,6 +13,8 @@ You may want to set a couple of commands as alias in order to run each time you 
 ### Requirements
 
 * Go
+* Bubble tea
+* SQLite (to store the information)
 
 ### Steps
 
@@ -25,12 +27,16 @@ $ go main.go
 
 This will send a message of all the possible errors. Please refer to me in case troubleshot 
 
-### Add new Questions file
-* Open the setup.sh file
-* Add the path to the questions file (it should be a txt file)
-* Add the path to the answers file (it should be a txt file)
-* Save and close the editor
-* Run the run test command and see whether the new configurations are set rightly
+### Screenshots
+This is a WIP and since it is a Text based user interface, it would be easier to share the screenshot as I'm building the app by panels
+
+### Glossary 
+Deck: topics, basically topics. Since this is a set of flashcards to study, it means a deck is a category to group the flashcards
+Flashcard: a combination of question and a answer. So far, the information is stored in a local database. I think it should have a configuration file so it can connect to different sources to get the flashcards. 
+
+### AI involved in this project
+I will use for this project Open Code with free LLMs (to be defined) 
+
 
 
 
