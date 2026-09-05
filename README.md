@@ -37,7 +37,7 @@ This is a WIP and since it is a Text based user interface, it would be easier to
 - Navigation: The User can navigate through all the flashcards back and forth until they finishes the whole 20 cards
 
 ### AI involved in this project
-I will use for this project Open Code with free LLMs (to be defined) 
+I will use Supacode, Open Code and free LLMs as possible. Since Im kind new n Go, some issues may happen. Even so, this wil be my first formal TUI after a quick learning path with bubble tea
 
 
 
