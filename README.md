@@ -1,43 +1,42 @@
-BullyingWithQuestions
-======
-Originally this was a basic bash script i wrote 10 years ago to retrieve a random question from a file to help you study from a text plain file full of questions. Now I decided to move to Go + Bubble Tea. I will keep updated this readme in order to improve step by step this old project I started with only good will but no time. 
+# BullyingWithQuestions
 
-## Gitflow
+This project is being rebuilt as a Go-based terminal study app using Bubble Tea. The current Phase 0 baseline sets up a clean application boundary and package layout before the study logic and TUI are implemented.
 
-You must create a fork in order to contribute.
+## Requirements
+
+- Go 1.26.5 or newer
+- Standard library only for the current baseline
+- Bubble Tea and Lip Gloss will be added in later phases
 
 ## Setup
 
-You may want to set a couple of commands as alias in order to run each time you open a terminal
-
-### Requirements
-
-* Go
-* Bubble tea
-* SQLite (to store the information)
-
-### Steps
-
-* Navigate to root directory
-* Run the following command:
+From the project root, run:
 
 ```bash
-$ go main.go
+go test ./...
 ```
 
-This will send a message of all the possible errors. Please refer to me in case troubleshot 
+To run the application entry point:
 
-### Screenshots
-This is a WIP and since it is a Text based user interface, it would be easier to share the screenshot as I'm building the app by panels
+```bash
+go run ./cmd/quickdeck
+```
 
-### Glossary 
-- Deck: topics, basically topics. Since this is a set of flashcards to study, it means a deck is a category to group the flashcards
-- Flashcard: a combination of question and a answer. So far, the information is stored in a local database. I think it should have a configuration file so it can connect to different sources to get the flashcards. 
-- Session: A study session. It consist of a random set of 20 flashcards to study
-- Navigation: The User can navigate through all the flashcards back and forth until they finishes the whole 20 cards
+## Project layout
 
-### AI involved in this project
-I will use Supacode, Open Code and free LLMs as possible. Since Im kind new n Go, some issues may happen. Even so, this wil be my first formal TUI after a quick learning path with bubble tea
+```text
+cmd/quickdeck/      - application entry point
+internal/app/       - top-level app lifecycle
+internal/content/   - content models and validation
+internal/session/    - session state and study rules
+internal/tui/       - Bubble Tea model and rendering
+```
+
+## Notes
+
+- The MVP is read-only and offline.
+- No SQLite or persistence layer is used in the current baseline.
+- Phase 0 intentionally leaves the app in a minimal runnable state without deck loading or study behavior.
 
 
 
