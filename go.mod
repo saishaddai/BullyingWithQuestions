@@ -1,4 +1,4 @@
-module menu
+module bullyingwithquestions
 
 go 1.26.5
 
