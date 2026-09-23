@@ -2,6 +2,7 @@ package content
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -124,5 +125,124 @@ func TestJSONUnknownFieldsAreIgnored(t *testing.T) {
 
 	if len(cardFile.Cards) != 1 || cardFile.Cards[0].ID != "algorithms-001" {
 		t.Fatalf("json.Unmarshal() did not preserve expected card data: %#v", cardFile)
+	}
+}
+
+func TestLoadContentDirAcceptsValidDirectory(t *testing.T) {
+	dir := t.TempDir()
+	cardsDir := filepath.Join(dir, "cards")
+	if err := os.MkdirAll(cardsDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	manifest := Manifest{
+		Version: SupportedVersion,
+		Decks: []Deck{{ID: "algorithms", Name: "Algorithms", Description: "Core algorithms.", CardsFile: "cards/algorithms.json"}},
+	}
+	manifestJSON, err := json.Marshal(manifest)
+	if err != nil {
+		t.Fatalf("json.Marshal(manifest) error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "decks.json"), manifestJSON, 0o644); err != nil {
+		t.Fatalf("WriteFile(decks.json) error = %v", err)
+	}
+
+	cardFile := CardFile{
+		Version: SupportedVersion,
+		DeckID:  "algorithms",
+		Cards: []Card{{ID: "algorithms-001", Question: "What is binary search?", Answer: "Split the range each step."}},
+	}
+	cardJSON, err := json.Marshal(cardFile)
+	if err != nil {
+		t.Fatalf("json.Marshal(cardFile) error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(cardsDir, "algorithms.json"), cardJSON, 0o644); err != nil {
+		t.Fatalf("WriteFile(card file) error = %v", err)
+	}
+
+	loaded, warnings, err := LoadContentDir(dir)
+	if err != nil {
+		t.Fatalf("LoadContentDir() unexpected error: %v", err)
+	}
+	if len(loaded) != 1 || len(loaded[0].Cards) != 1 {
+		t.Fatalf("LoadContentDir() loaded = %#v, want 1 deck with 1 card", loaded)
+	}
+	if len(warnings) != 0 {
+		t.Fatalf("LoadContentDir() warnings = %v, want none", warnings)
+	}
+}
+
+func TestLoadContentDirRejectsMissingManifest(t *testing.T) {
+	_, _, err := LoadContentDir(t.TempDir())
+	if err == nil || !strings.Contains(err.Error(), "decks.json") {
+		t.Fatalf("LoadContentDir() error = %v, want decks.json missing error", err)
+	}
+}
+
+func TestLoadContentDirRejectsEscapingCardPath(t *testing.T) {
+	dir := t.TempDir()
+	manifest := Manifest{
+		Version: SupportedVersion,
+		Decks:  []Deck{{ID: "algorithms", Name: "Algorithms", Description: "Core algorithms.", CardsFile: filepath.Join("..", "outside.json")}},
+	}
+	manifestJSON, err := json.Marshal(manifest)
+	if err != nil {
+		t.Fatalf("json.Marshal(manifest) error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "decks.json"), manifestJSON, 0o644); err != nil {
+		t.Fatalf("WriteFile(decks.json) error = %v", err)
+	}
+
+	_, _, err = LoadContentDir(dir)
+	if err == nil || !strings.Contains(err.Error(), "within the content directory") {
+		t.Fatalf("LoadContentDir() error = %v, want content-directory safety error", err)
+	}
+}
+
+func TestLoadContentDirSkipsInvalidCardsWithWarning(t *testing.T) {
+	dir := t.TempDir()
+	cardsDir := filepath.Join(dir, "cards")
+	if err := os.MkdirAll(cardsDir, 0o755); err != nil {
+		t.Fatalf("MkdirAll() error = %v", err)
+	}
+
+	manifest := Manifest{
+		Version: SupportedVersion,
+		Decks:  []Deck{{ID: "algorithms", Name: "Algorithms", Description: "Core algorithms.", CardsFile: "cards/algorithms.json"}},
+	}
+	manifestJSON, err := json.Marshal(manifest)
+	if err != nil {
+		t.Fatalf("json.Marshal(manifest) error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "decks.json"), manifestJSON, 0o644); err != nil {
+		t.Fatalf("WriteFile(decks.json) error = %v", err)
+	}
+
+	cardFile := CardFile{
+		Version: SupportedVersion,
+		DeckID:  "algorithms",
+		Cards: []Card{
+			{ID: "algorithms-001", Question: "Valid question", Answer: "Valid answer"},
+			{ID: "algorithms-002", Question: " ", Answer: "Missing question"},
+			{ID: "algorithms-003", Question: "Another valid question", Answer: "Another valid answer"},
+		},
+	}
+	cardJSON, err := json.Marshal(cardFile)
+	if err != nil {
+		t.Fatalf("json.Marshal(cardFile) error = %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(cardsDir, "algorithms.json"), cardJSON, 0o644); err != nil {
+		t.Fatalf("WriteFile(card file) error = %v", err)
+	}
+
+	loaded, warnings, err := LoadContentDir(dir)
+	if err != nil {
+		t.Fatalf("LoadContentDir() unexpected error: %v", err)
+	}
+	if len(loaded) != 1 || len(loaded[0].Cards) != 2 {
+		t.Fatalf("LoadContentDir() loaded = %#v, want 2 valid cards after filtering", loaded)
+	}
+	if len(warnings) == 0 {
+		t.Fatalf("LoadContentDir() warnings = %v, want at least one warning for skipped invalid cards", warnings)
 	}
 }
