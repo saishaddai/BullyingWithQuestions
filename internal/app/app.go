@@ -1,17 +1,35 @@
 package app
 
 import (
-	"fmt"
-	"os"
+	tea "github.com/charmbracelet/bubbletea"
+
+	"bullyingwithquestions/internal/content"
+	"bullyingwithquestions/internal/tui"
 )
 
-// Run provides the application boundary for the QuickDeck MVP and returns nil until
-// the actual TUI lifecycle is implemented.
+// Run starts QuickDeck using the default content directory.
 func Run() error {
-	// Phase 0 deliberately leaves the app executable but does not start the TUI yet.
-	// The future UI and deck-loading behavior will live in this package boundary.
-	if _, err := fmt.Fprintln(os.Stdout, "QuickDeck baseline initialized"); err != nil {
+	return RunWithContentDir("content")
+}
+
+// LoadModel loads local content and builds the initial selection or error model.
+func LoadModel(contentDir string) (tui.Model, error) {
+	decks, warnings, err := content.LoadContentDir(contentDir)
+	if err != nil {
+		return tui.NewErrorModel(err.Error()), nil
+	}
+	model := tui.NewSelectionModel(decks, nil)
+	model.SetWarnings(warnings)
+	return model, nil
+}
+
+// RunWithContentDir loads local content and starts the selection screen.
+func RunWithContentDir(contentDir string) error {
+	model, err := LoadModel(contentDir)
+	if err != nil {
 		return err
 	}
-	return nil
+	program := tea.NewProgram(model.ProgramModel())
+	_, err = program.Run()
+	return err
 }

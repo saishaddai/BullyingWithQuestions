@@ -1,9 +1,16 @@
 package app
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
-func TestRunReturnsNilAtBaseline(t *testing.T) {
-	if err := Run(); err != nil {
-		t.Fatalf("Run() returned an unexpected error: %v", err)
+func TestLoadModelBuildsAnErrorModelForMissingContent(t *testing.T) {
+	model, err := LoadModel(t.TempDir())
+	if err != nil {
+		t.Fatalf("LoadModel() unexpected error: %v", err)
+	}
+	if !strings.Contains(model.View(), "decks.json") {
+		t.Fatalf("error view = %q, want decks.json context", model.View())
 	}
 }
