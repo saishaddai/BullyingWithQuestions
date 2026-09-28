@@ -167,6 +167,48 @@ func TestAdvancingPastLastCardShowsCompletion(t *testing.T) {
 	}
 }
 
+func TestSummaryShowsMetricsAndRecoveryActions(t *testing.T) {
+	deck := testDecks(1)[0]
+	deck.Cards = []content.Card{
+		{ID: "card-1", Question: "Question one", Answer: "Answer one"},
+		{ID: "card-2", Question: "Question two", Answer: "Answer two"},
+	}
+	model := enterStudy(t, NewSelectionModel([]content.LoadedDeck{deck}, rand.New(rand.NewSource(1))))
+	model.study.Next()
+	model.study.Previous()
+	model.study.Next()
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyRight})
+
+	view := model.View()
+	for _, expected := range []string{"Deck A", "Cards reviewed: 2", "Cards revisited: 2", "Elapsed:", "Enter Return to deck selection", "q Quit"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("summary View() missing %q:\n%s", expected, view)
+		}
+	}
+}
+
+func TestEmptySelectedDeckCanReturnToSelection(t *testing.T) {
+	deck := testDecks(1)[0]
+	deck.Cards = nil
+	model := NewSelectionModel([]content.LoadedDeck{deck}, nil)
+	model, _ = model.Update(DeckSelectedMsg{Deck: deck})
+	if model.screen != errorScreen || !strings.Contains(model.View(), `deck "a"`) || !strings.Contains(model.View(), "Enter Return to deck selection") {
+		t.Fatalf("empty-deck error is not actionable:\n%s", model.View())
+	}
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if model.screen != selectionScreen {
+		t.Fatalf("Enter returned to screen %v, want selection", model.screen)
+	}
+}
+
+func TestSelectionShowsDetailedContentWarnings(t *testing.T) {
+	model := NewSelectionModel(testDecks(1), nil)
+	model.SetWarnings([]string{`deck "algorithms": skipped card "bad-card" because question is empty`})
+	if view := model.View(); !strings.Contains(view, "bad-card") || !strings.Contains(view, "question is empty") {
+		t.Fatalf("selection view omitted warning details:\n%s", view)
+	}
+}
+
 func TestStudyPanelsWrapWithinTerminalWidth(t *testing.T) {
 	deck := testDecks(1)[0]
 	deck.Cards[0] = content.Card{

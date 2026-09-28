@@ -29,17 +29,19 @@ type DeckSelectedMsg struct {
 
 // Model is the Phase 4 deck-selection model.
 type Model struct {
-	decks    []content.LoadedDeck
-	selected int
-	offset   int
-	width    int
-	height   int
-	screen   screen
-	deck     content.LoadedDeck
-	study    *session.Session
-	random   *rand.Rand
-	err      string
-	warnings []string
+	decks          []content.LoadedDeck
+	selected       int
+	offset         int
+	width          int
+	height         int
+	screen         screen
+	deck           content.LoadedDeck
+	study          *session.Session
+	random         *rand.Rand
+	finishedAt     time.Time
+	err            string
+	errorCanReturn bool
+	warnings       []string
 }
 
 var (
@@ -77,10 +79,14 @@ func (model Model) Update(message tea.Msg) (Model, tea.Cmd) {
 		if err != nil {
 			model.screen = errorScreen
 			model.err = fmt.Sprintf("deck %q: %v", message.Deck.ID, err)
+			model.errorCanReturn = true
 			return model, nil
 		}
 		model.deck = message.Deck
 		model.study = study
+		model.finishedAt = time.Time{}
+		model.err = ""
+		model.errorCanReturn = false
 		model.screen = studyScreen
 		return model, nil
 	case tea.WindowSizeMsg:
@@ -119,7 +125,7 @@ func (model Model) Update(message tea.Msg) (Model, tea.Cmd) {
 				model.study.Previous()
 			case tea.KeyRight:
 				if !model.study.Next() {
-					model.screen = summaryScreen
+					model.finishStudy()
 				}
 			case tea.KeySpace:
 				model.study.Reveal()
@@ -129,7 +135,7 @@ func (model Model) Update(message tea.Msg) (Model, tea.Cmd) {
 					model.study.Previous()
 				case "l":
 					if !model.study.Next() {
-						model.screen = summaryScreen
+						model.finishStudy()
 					}
 				case " ":
 					model.study.Reveal()
@@ -139,6 +145,13 @@ func (model Model) Update(message tea.Msg) (Model, tea.Cmd) {
 			if message.Type == tea.KeyEnter {
 				model.screen = selectionScreen
 				model.study = nil
+				model.finishedAt = time.Time{}
+			}
+		case errorScreen:
+			if message.Type == tea.KeyEnter && model.errorCanReturn {
+				model.screen = selectionScreen
+				model.err = ""
+				model.errorCanReturn = false
 			}
 		}
 	}
@@ -147,17 +160,24 @@ func (model Model) Update(message tea.Msg) (Model, tea.Cmd) {
 
 // View renders the current application screen.
 func (model Model) View() string {
-	if model.screen == errorScreen {
-		return panelStyle.Render(titleStyle.Render("QuickDeck") + "\n\n" + model.err + "\n\n" + mutedStyle.Render("q Quit"))
-	}
 	if model.width > 0 && model.width < 40 {
-		return titleStyle.Render("QuickDeck") + "\n\n" + "Terminal too small. Resize to at least 40 columns."
+		return titleStyle.Render("QuickDeck") + "\n\nTerminal too small. Resize to at least 40 columns or press q to quit."
+	}
+	if model.screen == errorScreen {
+		return model.errorView()
 	}
 	if model.screen == studyScreen {
 		return model.studyView()
 	}
 	if model.screen == summaryScreen {
-		return panelStyle.Render(titleStyle.Render("QuickDeck") + "  " + mutedStyle.Render("Session complete") + "\n\n" + model.deck.Name + "\n\n" + mutedStyle.Render("Enter Return to decks  q Quit"))
+		elapsed := model.study.ElapsedAt(model.finishedAt)
+		summary := fmt.Sprintf("%s\n\nCards reviewed: %d\nCards revisited: %d\nElapsed: %s",
+			model.deck.Name,
+			model.study.CardsViewed(),
+			model.study.RevisitCount(),
+			session.FormatElapsed(elapsed),
+		)
+		return panelStyle.Render(titleStyle.Render("QuickDeck") + "  " + mutedStyle.Render("Session complete") + "\n\n" + summary + "\n\n" + mutedStyle.Render("Enter Return to deck selection  q Quit"))
 	}
 
 	header := titleStyle.Render("QuickDeck") + "  " + mutedStyle.Render("Choose a deck")
@@ -183,10 +203,35 @@ func (model Model) View() string {
 	description := model.decks[model.selected].Description
 	body := strings.Join(rows, "\n") + "\n\n" + mutedStyle.Render(description)
 	if len(model.warnings) > 0 {
-		body += "\n\n" + mutedStyle.Render(fmt.Sprintf("%d content warning(s)", len(model.warnings)))
+		shown := len(model.warnings)
+		if shown > 3 {
+			shown = 3
+		}
+		warningDetails := strings.Join(model.warnings[:shown], "\n")
+		if shown < len(model.warnings) {
+			warningDetails += fmt.Sprintf("\n... %d additional warning(s)", len(model.warnings)-shown)
+		}
+		warningWidth := model.width - 10
+		if warningWidth <= 0 {
+			warningWidth = 70
+		}
+		body += "\n\n" + mutedStyle.Render(fmt.Sprintf("Content warnings (%d):", len(model.warnings))) + "\n" + lipgloss.NewStyle().Width(warningWidth).Render(warningDetails)
 	}
 	footer := mutedStyle.Render("Up/Down Move  Enter Select  q Quit")
 	return panelStyle.Render(header + "\n\n" + body + "\n\n" + footer)
+}
+
+func (model Model) errorView() string {
+	width := model.width - 10
+	if width <= 0 {
+		width = 70
+	}
+	footer := "q Quit"
+	if model.errorCanReturn {
+		footer = "Enter Return to deck selection  q Quit"
+	}
+	message := lipgloss.NewStyle().Width(width).Render(model.err)
+	return panelStyle.Render(titleStyle.Render("QuickDeck") + "\n\n" + message + "\n\n" + mutedStyle.Render(footer))
 }
 
 func (model Model) studyView() string {
@@ -194,7 +239,7 @@ func (model Model) studyView() string {
 		return panelStyle.Render(titleStyle.Render("QuickDeck") + "\n\nNo study session is active.")
 	}
 	if model.width > 0 && model.width < 40 {
-		return titleStyle.Render("QuickDeck") + "\n\nTerminal too small. Resize to at least 40 columns."
+		return titleStyle.Render("QuickDeck") + "\n\nTerminal too small. Resize to at least 40 columns or press q to quit."
 	}
 	width := model.width
 	if width == 0 {
@@ -223,6 +268,11 @@ func (model Model) studyView() string {
 	}
 	footer := mutedStyle.Render("Left/ h Previous  " + nextAction + "  Space Reveal  q Quit")
 	return header + "\n\n" + panels + "\n\n" + footer
+}
+
+func (model *Model) finishStudy() {
+	model.finishedAt = time.Now()
+	model.screen = summaryScreen
 }
 
 func studyPanel(title, body string, width int) string {

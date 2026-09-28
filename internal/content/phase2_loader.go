@@ -63,15 +63,15 @@ func loadDeckCards(cardPath, deckID string) ([]Card, []string, error) {
 	}
 
 	var raw struct {
-		Version int            `json:"version"`
-		DeckID  string         `json:"deck_id"`
+		Version int               `json:"version"`
+		DeckID  string            `json:"deck_id"`
 		Cards   []json.RawMessage `json:"cards"`
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return nil, nil, fmt.Errorf("card file %q: malformed JSON: %w", cardPath, err)
 	}
 	if raw.Version != SupportedVersion {
-		return nil, nil, fmt.Errorf("card file %q version %d is not supported; expected %d", deckID, raw.Version, SupportedVersion)
+		return nil, nil, fmt.Errorf("card file %q for deck %q version %d is not supported; expected %d", cardPath, deckID, raw.Version, SupportedVersion)
 	}
 	if strings.TrimSpace(raw.DeckID) != "" && strings.TrimSpace(raw.DeckID) != strings.TrimSpace(deckID) {
 		return nil, nil, fmt.Errorf("card file %q: deck_id %q does not match manifest deck id %q", cardPath, raw.DeckID, deckID)

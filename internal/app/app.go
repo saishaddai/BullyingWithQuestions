@@ -1,6 +1,8 @@
 package app
 
 import (
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 
 	"bullyingwithquestions/internal/content"
@@ -16,7 +18,11 @@ func Run() error {
 func LoadModel(contentDir string) (tui.Model, error) {
 	decks, warnings, err := content.LoadContentDir(contentDir)
 	if err != nil {
-		return tui.NewErrorModel(err.Error()), nil
+		message := err.Error()
+		if len(warnings) > 0 {
+			message += "\n\n" + strings.Join(warnings, "\n")
+		}
+		return tui.NewErrorModel(message), nil
 	}
 	model := tui.NewSelectionModel(decks, nil)
 	model.SetWarnings(warnings)
