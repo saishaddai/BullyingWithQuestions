@@ -1,11 +1,12 @@
 package tui
-package tui
 
 import (
+	"math/rand"
 	"strings"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"bullyingwithquestions/internal/content"
 )
@@ -23,6 +24,16 @@ func testDecks(count int) []content.LoadedDeck {
 		}
 	}
 	return decks
+}
+
+func enterStudy(t *testing.T, model Model) Model {
+	t.Helper()
+	model, command := model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if command == nil {
+		t.Fatal("Enter returned no deck-selection command")
+	}
+	model, _ = model.Update(command())
+	return model
 }
 
 func TestSelectionNavigationIsBounded(t *testing.T) {
@@ -89,5 +100,85 @@ func TestErrorModelRendersActionableMessage(t *testing.T) {
 	model := NewErrorModel("content/decks.json: missing manifest")
 	if !strings.Contains(model.View(), "content/decks.json: missing manifest") {
 		t.Fatalf("error view omitted cause:\n%s", model.View())
+	}
+}
+
+func TestSelectingDeckStartsStudyWithHiddenAnswer(t *testing.T) {
+	deck := testDecks(1)[0]
+	deck.Cards[0] = content.Card{ID: "card-1", Question: "What is a goroutine?", Answer: "A lightweight concurrent task."}
+	model := NewSelectionModel([]content.LoadedDeck{deck}, rand.New(rand.NewSource(1)))
+	model, _ = model.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
+	model = enterStudy(t, model)
+
+	view := model.View()
+	for _, expected := range []string{"Deck A", "Card 1 of 1", "What is a goroutine?", "Answer hidden", "Space Reveal"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("study View() missing %q:\n%s", expected, view)
+		}
+	}
+	if model.screen != studyScreen {
+		t.Fatalf("screen = %v, want study", model.screen)
+	}
+}
+
+func TestStudyRevealAndNavigationKeepPerCardState(t *testing.T) {
+	deck := testDecks(1)[0]
+	deck.Cards = []content.Card{
+		{ID: "card-1", Question: "Question one", Answer: "Answer one"},
+		{ID: "card-2", Question: "Question two", Answer: "Answer two"},
+	}
+	model := enterStudy(t, NewSelectionModel([]content.LoadedDeck{deck}, rand.New(rand.NewSource(1))))
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeySpace})
+	firstAnswer := model.study.Card().Answer
+	if !model.study.IsRevealed() || !strings.Contains(model.View(), firstAnswer) {
+		t.Fatalf("Space did not reveal the current answer:\n%s", model.View())
+	}
+
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyRight})
+	if model.study.Position() != 1 || model.study.IsRevealed() {
+		t.Fatal("Right did not advance to the next hidden card")
+	}
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'h'}})
+	if model.study.Position() != 0 || !model.study.IsRevealed() {
+		t.Fatal("h did not return to the revealed first card")
+	}
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'l'}})
+	if model.study.Position() != 1 {
+		t.Fatal("l did not advance to the second card")
+	}
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyLeft})
+	if model.study.Position() != 0 {
+		t.Fatal("Left did not navigate to the previous card")
+	}
+}
+
+func TestAdvancingPastLastCardShowsCompletion(t *testing.T) {
+	model := enterStudy(t, NewSelectionModel(testDecks(1), rand.New(rand.NewSource(1))))
+	if !strings.Contains(model.View(), "Right/ l Finish") {
+		t.Fatalf("final-card footer omits finish action:\n%s", model.View())
+	}
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyRight})
+	if model.screen != summaryScreen || !strings.Contains(model.View(), "Session complete") {
+		t.Fatalf("last-card advance did not show completion:\n%s", model.View())
+	}
+	model, _ = model.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	if model.screen != selectionScreen {
+		t.Fatalf("Enter from completion returned to screen %v, want selection", model.screen)
+	}
+}
+
+func TestStudyPanelsWrapWithinTerminalWidth(t *testing.T) {
+	deck := testDecks(1)[0]
+	deck.Cards[0] = content.Card{
+		ID:       "card-1",
+		Question: strings.Repeat("A long question with wrapped words. ", 8),
+		Answer:   "Answer text",
+	}
+	model := enterStudy(t, NewSelectionModel([]content.LoadedDeck{deck}, rand.New(rand.NewSource(1))))
+	model, _ = model.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
+	for _, line := range strings.Split(model.View(), "\n") {
+		if width := lipgloss.Width(line); width > 80 {
+			t.Fatalf("study view line width = %d, want at most 80: %q", width, line)
+		}
 	}
 }
