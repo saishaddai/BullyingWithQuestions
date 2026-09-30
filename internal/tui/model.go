@@ -27,7 +27,7 @@ type DeckSelectedMsg struct {
 	Deck content.LoadedDeck
 }
 
-// Model is the Phase 4 deck-selection model.
+// Model is the application model for selection, study, summary, and error screens.
 type Model struct {
 	decks          []content.LoadedDeck
 	selected       int
@@ -160,8 +160,8 @@ func (model Model) Update(message tea.Msg) (Model, tea.Cmd) {
 
 // View renders the current application screen.
 func (model Model) View() string {
-	if model.width > 0 && model.width < 40 {
-		return titleStyle.Render("QuickDeck") + "\n\nTerminal too small. Resize to at least 40 columns or press q to quit."
+	if model.terminalTooSmall() {
+		return titleStyle.Render("QuickDeck") + "\n\nTerminal too small. Resize to at least 40 columns and 12 rows, or press q to quit."
 	}
 	if model.screen == errorScreen {
 		return model.errorView()
@@ -238,9 +238,6 @@ func (model Model) studyView() string {
 	if model.study == nil {
 		return panelStyle.Render(titleStyle.Render("QuickDeck") + "\n\nNo study session is active.")
 	}
-	if model.width > 0 && model.width < 40 {
-		return titleStyle.Render("QuickDeck") + "\n\nTerminal too small. Resize to at least 40 columns or press q to quit."
-	}
 	width := model.width
 	if width == 0 {
 		width = 80
@@ -311,6 +308,10 @@ func (model Model) visibleCount() int {
 		count = len(model.decks)
 	}
 	return count
+}
+
+func (model Model) terminalTooSmall() bool {
+	return model.width > 0 && model.width < 40 || model.height > 0 && model.height < 12
 }
 
 func (model *Model) ensureVisible() {

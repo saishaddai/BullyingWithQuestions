@@ -17,6 +17,20 @@ func TestLoadModelBuildsAnErrorModelForMissingContent(t *testing.T) {
 	}
 }
 
+func TestLoadModelExplainsMissingContentDirectory(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "missing-content")
+	model, err := LoadModel(dir)
+	if err != nil {
+		t.Fatalf("LoadModel() unexpected error: %v", err)
+	}
+	view := model.View()
+	for _, expected := range []string{"content directory", "does not", "exist;", "decks.json"} {
+		if !strings.Contains(view, expected) {
+			t.Fatalf("error view omitted %q:\n%s", expected, view)
+		}
+	}
+}
+
 func TestLoadModelPreservesWarningsWhenNoDeckCanBeLoaded(t *testing.T) {
 	dir := t.TempDir()
 	manifest := `{"version":1,"decks":[{"id":"missing-deck","name":"Missing Deck","description":"Deck with a missing card file.","cards_file":"cards/missing.json"}]}`

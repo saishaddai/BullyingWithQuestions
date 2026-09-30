@@ -96,6 +96,15 @@ func TestNarrowTerminalRendersResizeMessage(t *testing.T) {
 	}
 }
 
+func TestShortTerminalRendersResizeMessage(t *testing.T) {
+	model := NewSelectionModel(testDecks(1), nil)
+	model, _ = model.Update(tea.WindowSizeMsg{Width: 80, Height: 8})
+	view := model.View()
+	if !strings.Contains(view, "Terminal too small") || !strings.Contains(view, "12 rows") {
+		t.Fatalf("View() did not show the short-terminal message:\n%s", view)
+	}
+}
+
 func TestErrorModelRendersActionableMessage(t *testing.T) {
 	model := NewErrorModel("content/decks.json: missing manifest")
 	if !strings.Contains(model.View(), "content/decks.json: missing manifest") {
