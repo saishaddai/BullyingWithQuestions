@@ -9,6 +9,17 @@ import (
 
 // LoadManifest reads and validates the deck manifest at the content root.
 func LoadManifest(contentDir string) (Manifest, error) {
+	info, err := os.Stat(contentDir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return Manifest{}, fmt.Errorf("content directory %q does not exist; expected a directory containing decks.json", contentDir)
+		}
+		return Manifest{}, fmt.Errorf("content directory %q: unable to access: %w", contentDir, err)
+	}
+	if !info.IsDir() {
+		return Manifest{}, fmt.Errorf("content directory %q is not a directory; expected a directory containing decks.json", contentDir)
+	}
+
 	manifestPath := filepath.Join(contentDir, "decks.json")
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
