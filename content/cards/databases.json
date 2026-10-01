@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "deck_id": "databases",
+  "cards": [
+    {"id":"databases-001","question":"What is a database index for?","answer":"It provides an auxiliary lookup structure that can speed up queries, at the cost of storage and write maintenance."},
+    {"id":"databases-002","question":"What does ACID stand for?","answer":"Atomicity, Consistency, Isolation, and Durability: properties commonly used to describe reliable transactions."},
+    {"id":"databases-003","question":"What is a database transaction?","answer":"A group of operations treated as one logical unit that commits or rolls back according to the database's guarantees."},
+    {"id":"databases-004","question":"Why can adding an index slow down writes?","answer":"The database must update the index as rows are inserted, changed, or deleted."}
+  ]
+}

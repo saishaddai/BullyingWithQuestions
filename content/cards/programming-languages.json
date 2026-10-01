@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "deck_id": "programming-languages",
+  "cards": [
+    {"id":"programming-languages-001","question":"What is the difference between static and dynamic typing?","answer":"In a statically typed language, type checking is primarily performed before execution; in a dynamically typed language, type checks are primarily performed at runtime."},
+    {"id":"programming-languages-002","question":"What is garbage collection?","answer":"Automatic management that reclaims memory no longer reachable by a program, according to the runtime's collection strategy."},
+    {"id":"programming-languages-003","question":"What is lexical scope?","answer":"A name's visibility is determined by the program's textual structure, rather than by the runtime call chain."},
+    {"id":"programming-languages-004","question":"What is an algebraic data type?","answer":"A type formed by combining other types, commonly using sum types (one of several variants) and product types (a collection of fields)."}
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "deck_id": "algorithms",
+  "cards": [
+    {"id":"algorithms-001","question":"What is the time complexity of binary search on a sorted array?","answer":"O(log n), because each comparison halves the remaining search interval."},
+    {"id":"algorithms-002","question":"What does Big O notation describe?","answer":"An asymptotic upper bound on how an algorithm's resource use grows with input size."},
+    {"id":"algorithms-003","question":"What is the worst-case time complexity of merge sort?","answer":"O(n log n); it divides the input into halves and merges each level in linear time."},
+    {"id":"algorithms-004","question":"What is quicksort's average and worst-case time complexity?","answer":"Average O(n log n); worst-case O(n^2), for example when partitions repeatedly split very unevenly."},
+    {"id":"algorithms-005","question":"When is breadth-first search useful for shortest paths?","answer":"In an unweighted graph, BFS finds a path with the fewest edges from a source to each reachable vertex."},
+    {"id":"algorithms-006","question":"What is the time complexity of BFS with adjacency lists?","answer":"O(V + E), where V is the number of vertices and E is the number of edges."},
+    {"id":"algorithms-007","question":"What is the key precondition for Dijkstra's shortest-path algorithm?","answer":"All edge weights must be non-negative."},
+    {"id":"algorithms-008","question":"When can Bellman-Ford be used instead of Dijkstra?","answer":"When edges may have negative weights; it can also detect reachable negative-weight cycles."},
+    {"id":"algorithms-009","question":"What kind of graph supports a topological ordering?","answer":"A directed acyclic graph (DAG)."},
+    {"id":"algorithms-010","question":"What is a stable sorting algorithm?","answer":"A sort that preserves the relative order of equal-key elements from the input."},
+    {"id":"algorithms-011","question":"What is the expected lookup time in a well-sized hash table?","answer":"O(1) average time, though worst-case lookup can be O(n)."},
+    {"id":"algorithms-012","question":"What does amortized analysis measure?","answer":"The average cost per operation over a sequence of operations, even when individual operations vary greatly."},
+    {"id":"algorithms-013","question":"What is the time complexity of inserting into a binary heap?","answer":"O(log n), because the new element may move along the heap's height."},
+    {"id":"algorithms-014","question":"What is a trie commonly used for?","answer":"Prefix-based lookup, such as autocomplete or dictionary search, using paths formed from key symbols."},
+    {"id":"algorithms-015","question":"What is the sliding-window technique useful for?","answer":"Finding properties of contiguous ranges while updating a window incrementally instead of recomputing each range."},
+    {"id":"algorithms-016","question":"What problem does memoization address?","answer":"It caches results of repeated subproblems so each equivalent computation can be reused."},
+    {"id":"algorithms-017","question":"What property must hold for a greedy choice to be globally optimal?","answer":"The problem must have a greedy-choice property, typically alongside optimal substructure; a locally best choice alone is not enough."},
+    {"id":"algorithms-018","question":"What does union-find support efficiently?","answer":"Disjoint-set membership and merging, commonly with near-constant amortized operations using path compression and union by rank or size."},
+    {"id":"algorithms-019","question":"What is the time complexity of scanning an array once?","answer":"O(n), where n is the number of elements."},
+    {"id":"algorithms-020","question":"What does a lower-bound search return in a sorted sequence?","answer":"The first position whose value is not less than the target, or the insertion position if the target is absent."}
+  ]
+}

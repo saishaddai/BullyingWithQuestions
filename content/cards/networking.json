@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "deck_id": "networking",
+  "cards": [
+    {"id":"networking-001","question":"What is the main difference between TCP and UDP?","answer":"TCP provides an ordered, reliable byte stream; UDP sends independent datagrams without built-in delivery or ordering guarantees."},
+    {"id":"networking-002","question":"What does DNS do?","answer":"It maps domain names to records such as IP addresses and other service information."},
+    {"id":"networking-003","question":"What is the purpose of a TCP three-way handshake?","answer":"To establish a connection and synchronize initial sequence numbers between the two endpoints."},
+    {"id":"networking-004","question":"What does HTTP status code 404 indicate?","answer":"The server could not find a current representation for the requested resource."}
+  ]
+}
