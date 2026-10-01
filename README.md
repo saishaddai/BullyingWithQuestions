@@ -1,42 +1,62 @@
-# BullyingWithQuestions
+# QuickDeck
 
-This project is being rebuilt as a Go-based terminal study app using Bubble Tea. The current Phase 0 baseline sets up a clean application boundary and package layout before the study logic and TUI are implemented.
+QuickDeck is an offline, keyboard-driven terminal app for short flashcard study sessions. It reads local JSON decks, shuffles each session, and does not save study progress.
 
 ## Requirements
 
 - Go 1.26.5 or newer
-- Standard library only for the current baseline
-- Bubble Tea and Lip Gloss will be added in later phases
+- A terminal at least 40 columns wide and 12 rows high for the full interface
 
-## Setup
+## Run
 
-From the project root, run:
+Run commands from the project root so the app can find the `content/` directory:
 
-```bash
-go test ./...
+```sh
+go run ./cmd/quickdeck
 ```
 
-To run the application entry point:
+To build and run a standalone executable:
 
-```bash
-go run ./cmd/quickdeck
+```sh
+go build -o quickdeck ./cmd/quickdeck
+./quickdeck
+```
+
+The executable reads `content/` relative to the current working directory. Keep the project root as the working directory, including when launching a built executable.
+
+## Controls
+
+- `Up` / `Down`: choose a deck
+- `Enter`: start a deck; from the summary, return to deck selection
+- `Left` / `h`: previous card
+- `Right` / `l`: next card; on the last card, finish the session
+- `Space`: reveal the current answer
+- `q` / `Ctrl+C`: quit
+
+## Content
+
+The `content/` directory contains `decks.json` and the seven sample decks under `content/cards/`. A deck with fewer than 20 valid cards uses all of them; a deck with 20 or more uses 20 shuffled cards. JSON files are read-only inputs. See [SPECS.md](SPECS.md) for the content schema and validation rules.
+
+## Verification
+
+```sh
+gofmt -w cmd/quickdeck/*.go internal/app/*.go internal/content/*.go internal/session/*.go internal/tui/*.go
+go vet ./...
+go test ./...
 ```
 
 ## Project layout
 
 ```text
-cmd/quickdeck/      - application entry point
-internal/app/       - top-level app lifecycle
-internal/content/   - content models and validation
-internal/session/    - session state and study rules
-internal/tui/       - Bubble Tea model and rendering
+cmd/quickdeck/       executable entry point
+content/             sample deck manifest and cards
+internal/app/        application lifecycle
+internal/content/    JSON loading and validation
+internal/session/    randomized session state
+internal/tui/         Bubble Tea screens and rendering
 ```
 
-## Notes
-
-- The MVP is read-only and offline.
-- No SQLite or persistence layer is used in the current baseline.
-- Phase 0 intentionally leaves the app in a minimal runnable state without deck loading or study behavior.
+QuickDeck has no network access, database, content editing, or study-progress persistence.
 
 
 

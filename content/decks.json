@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "decks": [
+    {
+      "id": "algorithms",
+      "name": "Algorithms",
+      "description": "Complexity, searching, sorting, and common problem-solving patterns.",
+      "cards_file": "cards/algorithms.json"
+    },
+    {
+      "id": "databases",
+      "name": "Databases",
+      "description": "Indexes, transactions, relational modeling, and query behavior.",
+      "cards_file": "cards/databases.json"
+    },
+    {
+      "id": "distributed-systems",
+      "name": "Distributed Systems",
+      "description": "Replication, consistency, coordination, and fault tolerance.",
+      "cards_file": "cards/distributed-systems.json"
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "description": "Everyday version-control concepts and history operations.",
+      "cards_file": "cards/git.json"
+    },
+    {
+      "id": "networking",
+      "name": "Networking",
+      "description": "Protocols, addressing, transport, and name resolution.",
+      "cards_file": "cards/networking.json"
+    },
+    {
+      "id": "operating-systems",
+      "name": "Operating Systems",
+      "description": "Processes, memory, scheduling, and system calls.",
+      "cards_file": "cards/operating-systems.json"
+    },
+    {
+      "id": "programming-languages",
+      "name": "Programming Languages",
+      "description": "Types, runtime behavior, compilation, and language design.",
+      "cards_file": "cards/programming-languages.json"
+    }
+  ]
+}

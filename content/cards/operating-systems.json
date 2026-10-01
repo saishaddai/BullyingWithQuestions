@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "deck_id": "operating-systems",
+  "cards": [
+    {"id":"operating-systems-001","question":"What is the difference between a process and a thread?","answer":"A process has its own address space and resources; threads within a process share that address space while having independent execution state."},
+    {"id":"operating-systems-002","question":"What is virtual memory?","answer":"An abstraction that gives processes virtual address spaces, which the OS and hardware map to physical memory or other backing storage."},
+    {"id":"operating-systems-003","question":"What is a system call?","answer":"A controlled interface through which a program requests a service from the operating system kernel."},
+    {"id":"operating-systems-004","question":"What is a context switch?","answer":"Saving one execution context and restoring another so the processor can run a different thread or process."}
+  ]
+}

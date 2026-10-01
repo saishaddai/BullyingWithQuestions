@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "deck_id": "git",
+  "cards": [
+    {"id":"git-001","question":"What does a Git commit represent?","answer":"A snapshot of tracked project content plus metadata and a reference to its parent commit or commits."},
+    {"id":"git-002","question":"What is the difference between merge and rebase?","answer":"Merge combines histories with a new commit; rebase reapplies commits onto another base, creating new commit identities."},
+    {"id":"git-003","question":"What does the Git index (staging area) do?","answer":"It records the content selected for the next commit."},
+    {"id":"git-004","question":"What does `git revert` do?","answer":"It creates a new commit that applies the inverse of an earlier commit, preserving existing history."}
+  ]
+}

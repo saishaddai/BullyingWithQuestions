@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "deck_id": "distributed-systems",
+  "cards": [
+    {"id":"distributed-systems-001","question":"What is replication in a distributed system?","answer":"Maintaining copies of data or services on multiple nodes, often to improve availability or read capacity."},
+    {"id":"distributed-systems-002","question":"What is a network partition?","answer":"A failure that prevents groups of nodes from communicating with one another even though they may still run."},
+    {"id":"distributed-systems-003","question":"What does eventual consistency promise?","answer":"If updates stop and communication continues, replicas will eventually converge; reads may temporarily differ."},
+    {"id":"distributed-systems-004","question":"Why are distributed failures difficult to detect?","answer":"A slow or unreachable node can be indistinguishable from a failed node using only delayed messages."}
+  ]
+}
